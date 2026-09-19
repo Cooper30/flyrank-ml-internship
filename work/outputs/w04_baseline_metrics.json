@@ -1,1 +1,24 @@
 
+{
+  "lane": "Refresh / Content Opportunity Scoring",
+  "observation_window": "2026-03",
+  "total_rows_ranked": 176738,
+  "review_for_refresh": 31464,
+  "deferred": 145274,
+  "signal_verdicts": {
+    "staleness": "MIXED",
+    "volume": "CONFIRMED"
+  },
+  "rule": {
+    "minimum_age_days": 180,
+    "minimum_impressions": 500,
+    "very_stale_bonus_days": 365,
+    "high_volume_bonus_impressions": 5000
+  },
+  "inputs_used": [
+    "content_age_days",
+    "impressions_march"
+  ],
+  "future_window_inputs_used": false,
+  "label_derived_inputs_used": false
+}
