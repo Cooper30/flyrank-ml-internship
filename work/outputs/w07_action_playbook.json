@@ -1,0 +1,62 @@
+{
+  "lane": "Refresh / Content Opportunity Scoring",
+  "observation_window": "2026-03",
+  "total_pages_ranked": 176738,
+  "operating_mode": "transparent rule plus mandatory human review",
+  "model_audit_verdict": "LIMITED \u2014 beats the hand rule but not the test base rate; unstable across client groups",
+  "action_counts": {
+    "DEFER": 145274,
+    "REVIEW_NEXT": 15435,
+    "REVIEW_NOW": 13154,
+    "MONITOR": 2875
+  },
+  "reason_code_counts": {
+    "BELOW_CORE_RULE": 145274,
+    "STALE_VISIBLE": 18310,
+    "VERY_STALE_VISIBLE": 6477,
+    "STALE_HIGH_VOLUME": 5248,
+    "VERY_STALE_HIGH_VOLUME": 1429
+  },
+  "rule": {
+    "minimum_age_days": 180,
+    "minimum_impressions": 500,
+    "very_stale_bonus_days": 365,
+    "high_volume_bonus_impressions": 5000,
+    "review_next_max_average_position": 20
+  },
+  "automated_actions_allowed": false,
+  "human_review_required": true,
+  "limitations": [
+    "content age is based on creation date, not verified last meaningful update",
+    "March demand may be seasonal or portfolio-specific",
+    "the rule does not establish causal refresh impact",
+    "the Week-5 model did not beat the test base rate"
+  ],
+  "monitoring_triggers": [
+    {
+      "signal": "Base-rate shift",
+      "trigger": ">10 percentage points",
+      "response": "Revalidate by client"
+    },
+    {
+      "signal": "Feature coverage",
+      "trigger": ">10 percentage points",
+      "response": "Audit pipeline and missingness"
+    },
+    {
+      "signal": "Top-50 manual acceptance",
+      "trigger": "<50% for two cycles",
+      "response": "Pause or revise rules"
+    },
+    {
+      "signal": "Precision@50",
+      "trigger": "Below rule or base rate twice",
+      "response": "Do not promote model"
+    },
+    {
+      "signal": "Label/data definition",
+      "trigger": "Any material change",
+      "response": "Rebuild and document"
+    }
+  ]
+}
