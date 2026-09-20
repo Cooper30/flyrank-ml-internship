@@ -1,0 +1,97 @@
+{
+  "lane": "Refresh / Content Opportunity Scoring",
+  "observation_window": "2026-03",
+  "outcome_window": "2026-04",
+  "target": "April impressions below 80% of March impressions",
+  "minimum_march_impressions": 100,
+  "minimum_available_days_per_client_month": 20,
+  "split": "client-grouped 60/20/20 train/validation/test",
+  "random_seed": 42,
+  "features": [
+    "log_impressions_march",
+    "ctr_march",
+    "avg_position_march",
+    "observed_days_march",
+    "content_age_days"
+  ],
+  "selected_depth": 2,
+  "validation_candidates": [
+    {
+      "max_depth": 2,
+      "rows": 9135,
+      "base_rate": 0.33946360153256705,
+      "average_precision": 0.3269859745673381,
+      "roc_auc": 0.4717699616181207,
+      "precision_at_20": 0.1,
+      "recall_at_20": 0.0006449532408900354,
+      "ndcg_at_20": 0.0913048760605247,
+      "precision_at_50": 0.06,
+      "recall_at_50": 0.0009674298613350532,
+      "ndcg_at_50": 0.06507907115764988
+    },
+    {
+      "max_depth": 3,
+      "rows": 9135,
+      "base_rate": 0.33946360153256705,
+      "average_precision": 0.3269406688519227,
+      "roc_auc": 0.46903075413674866,
+      "precision_at_20": 0.1,
+      "recall_at_20": 0.0006449532408900354,
+      "ndcg_at_20": 0.0922553384384305,
+      "precision_at_50": 0.06,
+      "recall_at_50": 0.0009674298613350532,
+      "ndcg_at_50": 0.06600783630215633
+    }
+  ],
+  "test_baseline": {
+    "rows": 46850,
+    "base_rate": 0.5576520811099253,
+    "average_precision": 0.525028422220823,
+    "roc_auc": 0.4666716982934971,
+    "precision_at_20": 0.25,
+    "recall_at_20": 0.0001913802342494067,
+    "ndcg_at_20": 0.2504639062402966,
+    "precision_at_50": 0.26,
+    "recall_at_50": 0.0004975886090484575,
+    "ndcg_at_50": 0.2596333011454677
+  },
+  "test_model": {
+    "rows": 46850,
+    "base_rate": 0.5576520811099253,
+    "average_precision": 0.5831247983976882,
+    "roc_auc": 0.5702607113718187,
+    "precision_at_20": 0.3,
+    "recall_at_20": 0.00022965628109928806,
+    "ndcg_at_20": 0.3164028862016293,
+    "precision_at_50": 0.38,
+    "recall_at_50": 0.0007272448901477455,
+    "ndcg_at_50": 0.37389897163393987
+  },
+  "feature_importance": [
+    {
+      "feature": "observed_days_march",
+      "importance": 0.5007553298921789
+    },
+    {
+      "feature": "ctr_march",
+      "importance": 0.4992446701078212
+    },
+    {
+      "feature": "log_impressions_march",
+      "importance": 0.0
+    },
+    {
+      "feature": "avg_position_march",
+      "importance": 0.0
+    },
+    {
+      "feature": "content_age_days",
+      "importance": 0.0
+    }
+  ],
+  "leakage_checks": {
+    "future_fields_used_as_features": false,
+    "ids_used_as_features": false,
+    "client_overlap_across_splits": false
+  }
+}
