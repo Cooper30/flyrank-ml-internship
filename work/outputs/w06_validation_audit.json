@@ -1,0 +1,27 @@
+{
+  "lane": "Refresh / Content Opportunity Scoring",
+  "source_metrics": "work/outputs/w05_model_metrics.json",
+  "split": "client-grouped 60/20/20 train/validation/test",
+  "selected_depth": 2,
+  "validation_base_rate": 0.33946360153256705,
+  "validation_precision_at_50": 0.06,
+  "test_base_rate": 0.5576520811099253,
+  "baseline_precision_at_50": 0.26,
+  "model_precision_at_50": 0.38,
+  "model_roc_auc": 0.5702607113718187,
+  "p50_gain_over_baseline_points": 0.12,
+  "p50_gap_vs_test_base_rate": -0.17765208110992525,
+  "validation_to_test_base_rate_shift": 0.2181884795773582,
+  "verdict": "LIMITED \u2014 beats the hand rule but not the test base rate; unstable across client groups",
+  "recommended_use": "manual research and decision support only",
+  "leakage_audit": {
+    "features_strictly_before_label_window": true,
+    "label_or_future_fields_used_as_features": false,
+    "ids_used_as_features": false,
+    "product_flags_used_as_features": false,
+    "client_overlap_across_splits": false,
+    "base_rate_reported": true,
+    "outcome_window_population_selection_disclosed": true,
+    "coverage_signal_requires_monitoring": true
+  }
+}
