@@ -1,0 +1,25 @@
+{
+  "title": "Can Search Signals Prioritize Content Refresh Reviews?",
+  "author": "Batuhan Şahin",
+  "lane": "Refresh / Content Opportunity Scoring",
+  "modeling_rows": 101280,
+  "clients": 40,
+  "test_rows": 46850,
+  "test_base_rate": 0.5576520811099253,
+  "baseline_precision_at_50": 0.26,
+  "model_precision_at_50": 0.38,
+  "baseline_roc_auc": 0.4666716982934971,
+  "model_roc_auc": 0.5702607113718187,
+  "validation_precision_at_50": 0.06,
+  "validation_base_rate": 0.33946360153256705,
+  "total_pages_ranked": 176738,
+  "action_counts": {
+    "DEFER": 145274,
+    "REVIEW_NEXT": 15435,
+    "REVIEW_NOW": 13154,
+    "MONITOR": 2875
+  },
+  "final_operating_mode": "transparent rule plus mandatory human review",
+  "automated_actions_allowed": false,
+  "random_seed": 42
+}
