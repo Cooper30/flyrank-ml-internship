@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A grouped-validation study of search signals for prioritizing content refresh reviews, built on the FlyRank ML Internship dataset.">
+  <title>Can Search Signals Prioritize Content Refresh Reviews? — Batuhan Şahin</title>
+  <style>
+    :root {
+      --ink: #18201d;
+      --muted: #66706b;
+      --paper: #fbfaf6;
+      --card: #ffffff;
+      --line: #dfe3dc;
+      --forest: #174b3b;
+      --mint: #dcefe5;
+      --lime: #b8df4e;
+      --amber: #f0a83b;
+      --red: #d76545;
+      --blue: #5c83d6;
+      --shadow: 0 18px 50px rgba(30, 48, 40, .08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 6%, rgba(184, 223, 78, .16), transparent 27rem),
+        linear-gradient(180deg, #f2f6ef 0, var(--paper) 32rem);
+      font: 16px/1.65 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--forest); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+    a:hover { color: #0d2f25; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+    .reading { width: min(790px, 100%); }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(251, 250, 246, .88);
+      border-bottom: 1px solid rgba(223, 227, 220, .85);
+      backdrop-filter: blur(14px);
+    }
+    .nav-inner { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { color: var(--ink); font-weight: 800; text-decoration: none; letter-spacing: -.02em; }
+    .nav-links { display: flex; gap: 18px; font-size: .88rem; }
+    .nav-links a { text-decoration: none; color: var(--muted); }
+
+    header { padding: 92px 0 72px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 22px;
+      color: var(--forest);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 28px; height: 3px; border-radius: 3px; background: var(--lime); }
+    h1, h2, h3 { line-height: 1.12; letter-spacing: -.035em; }
+    h1 { max-width: 900px; margin: 0 0 25px; font-size: clamp(2.65rem, 7vw, 5.3rem); }
+    h2 { margin: 0 0 22px; font-size: clamp(1.8rem, 4vw, 2.75rem); }
+    h3 { margin: 0 0 12px; font-size: 1.18rem; }
+    .dek { max-width: 780px; margin: 0; color: #3b4742; font-size: clamp(1.1rem, 2vw, 1.35rem); }
+    .byline { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px 20px; color: var(--muted); font-size: .92rem; }
+    .byline strong { color: var(--ink); }
+
+    .headline-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 28px; margin-top: 54px; }
+    .finding {
+      padding: 30px;
+      background: var(--forest);
+      color: #fff;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+    .finding small { color: #bcd4ca; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .finding strong { display: block; margin-top: 8px; font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1; }
+    .finding p { margin: 13px 0 0; color: #e4eee9; }
+    .verdict { padding: 30px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.72); }
+    .verdict .tag { display: inline-block; padding: 5px 10px; border-radius: 999px; color: #7b4b00; background: #ffedc8; font-weight: 800; font-size: .74rem; letter-spacing: .08em; }
+    .verdict p { margin: 14px 0 0; color: #46524d; }
+
+    main section { padding: 76px 0; border-top: 1px solid var(--line); }
+    .section-label { margin-bottom: 12px; color: var(--forest); font-size: .76rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .lead { color: #3d4944; font-size: 1.14rem; }
+    .note { padding: 18px 20px; border-left: 4px solid var(--amber); background: #fff7e8; color: #664c25; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 30px 0; }
+    .metric { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+    .metric b { display: block; font-size: 1.55rem; line-height: 1.1; }
+    .metric span { display: block; margin-top: 7px; color: var(--muted); font-size: .82rem; }
+
+    .method-grid, .recommendations { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 28px; }
+    .method-card, .action-card { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
+    .method-card p, .action-card p { margin: 0; color: #4c5752; }
+    .num { display: inline-grid; width: 28px; height: 28px; margin-bottom: 16px; place-items: center; border-radius: 50%; background: var(--mint); color: var(--forest); font-size: .83rem; font-weight: 800; }
+
+    .chart-card { margin: 32px 0; padding: 28px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); box-shadow: 0 10px 35px rgba(30,48,40,.045); }
+    .chart-title { margin-bottom: 4px; font-weight: 800; }
+    .chart-subtitle { margin: 0 0 25px; color: var(--muted); font-size: .9rem; }
+    .bar-row { display: grid; grid-template-columns: 150px 1fr 50px; gap: 12px; align-items: center; margin: 12px 0; }
+    .bar-label { color: #4a5550; font-size: .88rem; }
+    .bar-track { height: 18px; overflow: hidden; border-radius: 999px; background: #edf0ea; }
+    .bar { height: 100%; border-radius: inherit; }
+    .bar.model { background: var(--forest); }
+    .bar.baseline { background: #aeb6b0; }
+    .bar.validation { background: var(--amber); }
+    .bar-value { text-align: right; font-variant-numeric: tabular-nums; font-weight: 750; }
+    .legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 18px; color: var(--muted); font-size: .8rem; }
+    .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; background: var(--forest); }
+    .legend .base::before { background: #aeb6b0; }
+    .legend .valid::before { background: var(--amber); }
+
+    .table-wrap { overflow-x: auto; margin: 28px 0; border: 1px solid var(--line); border-radius: 18px; background: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); background: #f5f6f2; font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; }
+    tr:last-child td { border-bottom: 0; }
+
+    .feature-chart { display: grid; grid-template-columns: 190px 1fr 54px; gap: 12px; align-items: center; }
+    .feature-chart + .feature-chart { margin-top: 12px; }
+
+    .action-card { position: relative; overflow: hidden; }
+    .action-card::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 5px; background: var(--line); }
+    .action-card.now::after { background: var(--red); }
+    .action-card.next::after { background: var(--amber); }
+    .action-card.monitor::after { background: var(--blue); }
+    .action-card.defer::after { background: #9ca59f; }
+    .action-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .action-name { font-weight: 850; letter-spacing: .02em; }
+    .action-count { font-size: 1.45rem; font-weight: 850; }
+    .action-card ul { margin: 14px 0 0; padding-left: 20px; color: #4c5752; }
+
+    .stacked { display: flex; height: 32px; overflow: hidden; border-radius: 999px; background: #eee; }
+    .stacked span { min-width: 4px; }
+    .stack-now { width: 7.44%; background: var(--red); }
+    .stack-next { width: 8.73%; background: var(--amber); }
+    .stack-monitor { width: 1.63%; background: var(--blue); }
+    .stack-defer { width: 82.2%; background: #aab1ac; }
+
+    .limits { display: grid; gap: 13px; margin-top: 28px; }
+    .limit { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .limit svg { margin-top: 2px; color: var(--amber); }
+    .limit p { margin: 0; }
+
+    .cta { padding: 36px; border-radius: 22px; background: var(--mint); }
+    .button-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .button { display: inline-block; padding: 11px 16px; border-radius: 10px; color: #fff; background: var(--forest); font-weight: 750; text-decoration: none; }
+    .button.secondary { color: var(--forest); background: #fff; border: 1px solid #a9c6b9; }
+
+    footer { padding: 54px 0 70px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+    footer p { margin: 6px 0; }
+
+    @media (max-width: 800px) {
+      .nav-links { display: none; }
+      header { padding: 62px 0 54px; }
+      .headline-grid, .method-grid, .recommendations { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 540px) {
+      .wrap { width: min(100% - 24px, 1120px); }
+      h1 { font-size: 2.55rem; }
+      main section { padding: 56px 0; }
+      .metrics { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 110px 1fr 42px; gap: 8px; }
+      .feature-chart { grid-template-columns: 135px 1fr 45px; gap: 8px; font-size: .82rem; }
+      .chart-card { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top">Batuhan Şahin · Research</a>
+      <div class="nav-links" aria-label="Paper sections">
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#recommendations">Recommendations</a>
+        <a href="#reproducibility">Reproduce</a>
+      </div>
+    </div>
+  </nav>
+
+  <header id="top">
+    <div class="wrap">
+      <p class="eyebrow">Search Intelligence · Refresh Opportunity Scoring</p>
+      <h1>Can Search Signals Prioritize Content Refresh Reviews?</h1>
+      <p class="dek">A grouped-validation study of whether pre-outcome search and content signals can help editorial teams decide which pages deserve a human refresh review first.</p>
+      <div class="byline">
+        <span><strong>Batuhan Şahin</strong></span>
+        <span>FlyRank ML Internship Capstone</span>
+        <span>September 2026</span>
+      </div>
+
+      <div class="headline-grid">
+        <div class="finding">
+          <small>Grouped test · Precision@50</small>
+          <strong>0.38</strong>
+          <p>The shallow tree exceeded the hand-rule baseline of 0.26 on the same held-out pages, but remained below the test population’s 0.558 positive rate.</p>
+        </div>
+        <div class="verdict">
+          <span class="tag">LIMITED EVIDENCE</span>
+          <p>The model’s validation result was weak and performance varied across client groups. The shipped workflow therefore uses a transparent rule with mandatory human review—not automatic publishing or deletion.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="abstract">
+      <div class="wrap reading">
+        <div class="section-label">Abstract</div>
+        <h2>What this study found</h2>
+        <p class="lead">This study asks whether pre-outcome search and content signals can prioritize pages for human refresh review. Using a public-safe FlyRank warehouse release, I created 101,280 page-month observations across 40 client groups, using March 2025 features and an April 2025 outcome. A shallow decision tree was compared with a transparent hand rule on the same grouped holdout, with client-disjoint splits, base rates, leakage checks, and Precision@K as the operating metric. On the grouped test set, the tree improved Precision@50 from 0.26 to 0.38 and ROC-AUC from 0.467 to 0.570, but Precision@50 remained below the test base rate of 0.558 and validation performance was weak. Because the evidence is directional and unstable across groups, the deployed recommendation is a rule-based queue of 176,738 pages with reason codes and mandatory human review rather than automated content changes.</p>
+      </div>
+    </section>
+
+    <section id="problem">
+      <div class="wrap reading">
+        <div class="section-label">1 · Introduction / Problem statement</div>
+        <h2>A prioritization decision, not a causal claim</h2>
+        <p>Editorial teams can inspect only a fraction of a large content inventory. The operational question is therefore: <strong>which pages should a reviewer inspect first?</strong> This work tests whether signals available before an outcome window—visibility, click-through rate, observed data coverage, average position, and content age—can support that triage decision.</p>
+        <p>The target is intentionally narrow: rank candidates for human review. It does not estimate the causal impact of refreshing a page, prove how Google’s algorithm works, or prescribe automatic publishing, merging, pruning, deletion, or redirects.</p>
+      </div>
+    </section>
+
+    <section id="data">
+      <div class="wrap">
+        <div class="reading">
+          <div class="section-label">2 · Data</div>
+          <h2>Public-safe page-month evidence</h2>
+          <p>The analysis uses the full gated FlyRank warehouse release referenced by the internship materials. Features came from March 2025 page-level Google Search Console aggregates joined to safe content metadata; the outcome came from April 2025. Only hashed identifiers were used for joins and group assignment.</p>
+        </div>
+
+        <div class="metrics" aria-label="Dataset summary">
+          <div class="metric"><b>101,280</b><span>Modeling rows</span></div>
+          <div class="metric"><b>40</b><span>Client groups</span></div>
+          <div class="metric"><b>46,850</b><span>Grouped test rows</span></div>
+          <div class="metric"><b>176,738</b><span>Pages scored for review</span></div>
+        </div>
+
+        <div class="reading">
+          <p><strong>Included:</strong> pages with usable March feature values and at least 20 observed April GSC days for the model population. <strong>Excluded:</strong> rows without sufficient future-window coverage, missing join keys, or safe feature values. The action queue itself uses pre-outcome page signals and is broader than the outcome-eligible modeling population.</p>
+          <p class="note"><strong>Coverage caveat:</strong> requiring at least 20 April observed days improves label reliability but creates a selected evaluation population. Results may not transfer to sparse or newly observed pages.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method">
+      <div class="wrap">
+        <div class="reading">
+          <div class="section-label">3 · Methodology</div>
+          <h2>A small, auditable model with grouped validation</h2>
+          <p>The label is a future-window proxy: whether April clicks exceeded March clicks for an outcome-eligible page. Every model feature was available in March or came from static content metadata.</p>
+        </div>
+
+        <div class="method-grid">
+          <article class="method-card">
+            <span class="num">1</span>
+            <h3>Features</h3>
+            <p>March CTR, log impressions, average position, observed March days, and content age. IDs, client labels, product flags, April fields, and label-derived values were excluded.</p>
+          </article>
+          <article class="method-card">
+            <span class="num">2</span>
+            <h3>Baseline</h3>
+            <p>A hand rule prioritizing pages at least 180 days old with at least 500 March impressions—the same population and target used for model evaluation.</p>
+          </article>
+          <article class="method-card">
+            <span class="num">3</span>
+            <h3>Model</h3>
+            <p>A decision-tree classifier selected by validation average precision from depths 2–5. Depth 2 was chosen, using class balancing and random seed 42.</p>
+          </article>
+          <article class="method-card">
+            <span class="num">4</span>
+            <h3>Validation</h3>
+            <p>Client-disjoint train, validation, and test sets: 24 / 8 / 8 groups. Test data remained untouched until the final comparison. Precision@20, Precision@50, average precision, ROC-AUC, and base rate were reported.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="wrap">
+        <div class="reading">
+          <div class="section-label">4 · Results</div>
+          <h2>The model beats the rule, but not the population base rate</h2>
+          <p>The model and hand rule were evaluated on the same 46,850 grouped test rows. The model improved every reported ranking/discrimination metric over the baseline. However, its 0.38 Precision@50 was still below the 0.558 test base rate, and its validation Precision@50 was only 0.06 against a 0.339 validation base rate.</p>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Evaluation</th><th>Rows</th><th>Base rate</th><th>P@20</th><th>P@50</th><th>Avg. precision</th><th>ROC-AUC</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Validation — depth-2 tree</td><td>9,135</td><td>0.339</td><td>0.100</td><td>0.060</td><td>0.327</td><td>0.472</td></tr>
+              <tr><td>Grouped test — hand rule</td><td>46,850</td><td>0.558</td><td>0.250</td><td>0.260</td><td>0.525</td><td>0.467</td></tr>
+              <tr><td><strong>Grouped test — depth-2 tree</strong></td><td>46,850</td><td>0.558</td><td><strong>0.300</strong></td><td><strong>0.380</strong></td><td><strong>0.583</strong></td><td><strong>0.570</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="chart-card" aria-labelledby="comparison-title">
+          <figcaption id="comparison-title" class="chart-title">Precision@50 on validation and grouped test</figcaption>
+          <p class="chart-subtitle">Higher is better. Population base rate is shown separately because the candidate mix differs between validation and test.</p>
+          <div class="bar-row"><span class="bar-label">Validation model</span><span class="bar-track"><span class="bar validation" style="display:block;width:6%"></span></span><span class="bar-value">.06</span></div>
+          <div class="bar-row"><span class="bar-label">Test hand rule</span><span class="bar-track"><span class="bar baseline" style="display:block;width:26%"></span></span><span class="bar-value">.26</span></div>
+          <div class="bar-row"><span class="bar-label">Test tree</span><span class="bar-track"><span class="bar model" style="display:block;width:38%"></span></span><span class="bar-value">.38</span></div>
+          <div class="bar-row"><span class="bar-label">Test base rate</span><span class="bar-track"><span class="bar" style="display:block;width:55.8%;background:var(--lime)"></span></span><span class="bar-value">.558</span></div>
+          <div class="legend"><span>Test model</span><span class="base">Hand rule</span><span class="valid">Validation model</span></div>
+        </figure>
+
+        <figure class="chart-card" aria-labelledby="features-title">
+          <figcaption id="features-title" class="chart-title">Fitted tree feature importance</figcaption>
+          <p class="chart-subtitle">Impurity-based importance describes this fitted tree; it is not causal evidence.</p>
+          <div class="feature-chart"><span>Observed March days</span><span class="bar-track"><span class="bar model" style="display:block;width:50.1%"></span></span><strong>.501</strong></div>
+          <div class="feature-chart"><span>March CTR</span><span class="bar-track"><span class="bar model" style="display:block;width:49.9%"></span></span><strong>.499</strong></div>
+          <div class="feature-chart"><span>Log impressions</span><span class="bar-track"><span class="bar baseline" style="display:block;width:0%"></span></span><strong>.000</strong></div>
+          <div class="feature-chart"><span>Average position</span><span class="bar-track"><span class="bar baseline" style="display:block;width:0%"></span></span><strong>.000</strong></div>
+          <div class="feature-chart"><span>Content age</span><span class="bar-track"><span class="bar baseline" style="display:block;width:0%"></span></span><strong>.000</strong></div>
+        </figure>
+      </div>
+    </section>
+
+    <section id="limitations">
+      <div class="wrap reading">
+        <div class="section-label">5 · Limitations & honest framing</div>
+        <h2>Decision support under uncertainty</h2>
+        <p>The correct reading is <strong>observed and directional</strong>: this dataset supports prioritizing reviews, not claiming that any signal causes future growth.</p>
+        <div class="limits">
+          <div class="limit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <p><strong>Generalization:</strong> validation and grouped test outcomes differ, indicating instability across client groups.</p>
+          </div>
+          <div class="limit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <p><strong>Selection:</strong> the future-coverage requirement excludes sparse pages and may overrepresent mature, well-observed content.</p>
+          </div>
+          <div class="limit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <p><strong>Label:</strong> click growth is a proxy, not a direct measure of refresh need, content quality, or incremental impact.</p>
+          </div>
+          <div class="limit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <p><strong>Context:</strong> seasonality, intent changes, SERP features, business value, and editorial constraints are not fully represented.</p>
+          </div>
+          <div class="limit">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 2.8 20h18.4L12 3Z" stroke="currentColor" stroke-width="2"/><path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <p><strong>Interpretability:</strong> tree feature importance reflects split usage in one fitted model and must not be read as a ranking-factor claim.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="recommendations">
+      <div class="wrap">
+        <div class="reading">
+          <div class="section-label">6 · Ranked recommendations</div>
+          <h2>A transparent, human-reviewed action queue</h2>
+          <p>Because the model audit was limited, the operating queue uses an auditable rule. A page qualifies at age ≥180 days and March impressions ≥500, with score bonuses for age ≥365 days and impressions ≥5,000. Average position separates “review next” from “monitor” at the score-4 boundary.</p>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-title">Action mix across 176,738 scored pages</div>
+          <p class="chart-subtitle">Most pages are deliberately deferred so reviewers can focus on the highest-priority candidates.</p>
+          <div class="stacked" role="img" aria-label="7.44 percent review now, 8.73 percent review next, 1.63 percent monitor, 82.20 percent defer">
+            <span class="stack-now"></span><span class="stack-next"></span><span class="stack-monitor"></span><span class="stack-defer"></span>
+          </div>
+        </div>
+
+        <div class="recommendations">
+          <article class="action-card now">
+            <div class="action-head"><span class="action-name">1 · REVIEW NOW</span><span class="action-count">13,154</span></div>
+            <p>Very stale or high-volume pages satisfying the core rule, with the strongest urgency bonuses.</p>
+            <ul><li>Check factual freshness and intent alignment.</li><li>Inspect cannibalization and business importance.</li><li>Select the editorial action manually.</li></ul>
+          </article>
+          <article class="action-card next">
+            <div class="action-head"><span class="action-name">2 · REVIEW NEXT</span><span class="action-count">15,435</span></div>
+            <p>Score-4 pages with average position ≤20: visible enough to justify a planned review.</p>
+            <ul><li>Review metadata and SERP fit.</li><li>Confirm that age reflects genuine staleness.</li><li>Schedule only after human approval.</li></ul>
+          </article>
+          <article class="action-card monitor">
+            <div class="action-head"><span class="action-name">3 · MONITOR</span><span class="action-count">2,875</span></div>
+            <p>Score-4 pages with average position &gt;20: the rule fires, but current visibility is weaker.</p>
+            <ul><li>Track visibility and click trends.</li><li>Escalate if importance or momentum changes.</li><li>Avoid speculative rewrites.</li></ul>
+          </article>
+          <article class="action-card defer">
+            <div class="action-head"><span class="action-name">4 · DEFER</span><span class="action-count">145,274</span></div>
+            <p>Pages below the age-and-visibility threshold. Deferral is not a recommendation to prune.</p>
+            <ul><li>Leave out of the current review sprint.</li><li>Re-score on a defined cadence.</li><li>Allow business-critical manual overrides.</li></ul>
+          </article>
+        </div>
+
+        <div class="reading" style="margin-top:30px">
+          <p class="note"><strong>Automation boundary:</strong> this queue may prioritize attention only. Publishing, deletion, pruning, merging, redirects, and causal claims require human judgment and are prohibited as automated outcomes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="reproducibility">
+      <div class="wrap reading">
+        <div class="section-label">7 · Reproducibility</div>
+        <h2>Every result is traceable</h2>
+        <p>The repository contains all weekly assignment notebooks, the complete capstone notebook, and machine-readable receipts for the model, validation audit, action playbook, and final summary. The capstone notebook reads the committed receipts, regenerates the result tables and charts, and finishes with a self-check.</p>
+        <div class="cta">
+          <h3>Review or rerun the work</h3>
+          <p>Start with the capstone notebook for the narrative, then inspect W05–W07 for modeling, validation, and recommendation logic.</p>
+          <div class="button-row">
+            <a class="button" href="https://github.com/Cooper30/flyrank-ml-internship" target="_blank" rel="noopener">View repository</a>
+            <a class="button secondary" href="https://colab.research.google.com/github/Cooper30/flyrank-ml-internship/blob/main/work/notebooks/capstone.ipynb?flush_cache=true" target="_blank" rel="noopener">Open capstone in Colab</a>
+            <a class="button secondary" href="https://github.com/Cooper30/flyrank-ml-internship/tree/main/work/outputs" target="_blank" rel="noopener">Inspect outputs</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="acknowledgments">
+      <div class="wrap reading">
+        <div class="section-label">8 · Acknowledgments & data credit</div>
+        <h2>Data and learning context</h2>
+        <p><a href="https://flyrank.ai" target="_blank" rel="noopener"><strong>Built on the FlyRank ML Internship dataset</strong></a>. Thanks to FlyRank for providing the gated, real-world search dataset and the research workflow used for this capstone.</p>
+        <p>All public results are aggregated and public-safe. No client names, domains, URLs, private queries, credentials, or raw exports are published.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><strong>Batuhan Şahin</strong> · Search Intelligence Capstone</p>
+      <p>Observed associations and decision support only. Last updated September 2026.</p>
+    </div>
+  </footer>
+</body>
+</html>
